@@ -76616,7 +76616,7 @@ try {
   }
 
   const sppurge = new Delete();
-  sppurge.deleteFolder(context, spFolder)
+  sppurge.deleteFolder(purgeContext, spFolder)
   .then(deletionResults =>{
     console.log('Deleted output folder')
   })
