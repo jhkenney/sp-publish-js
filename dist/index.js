@@ -76614,19 +76614,8 @@ try {
       password: spPass,
     }
   }
-
-  const sppurge = new Delete();
-  sppurge.deleteFolder(purgeContext, spFolder)
-  .then(deletionResults =>{
-    console.log('Deleted output folder')
-  })
-  .catch(error =>{
-    console.log('Error while deleting output folder')
-    console.log(error)
-  });
-
   var coreOptions = {
-      siteUrl: spUrl,
+    siteUrl: spUrl,
   };
   var credentials = {
       username: spUser,
@@ -76637,14 +76626,25 @@ try {
     folder: spFolder, 
   };
   var path = `${process.env.GITHUB_WORKSPACE}\\${outputFolder}\\**\\`
-  console.log(`Publishing files from ${path}`)
 
-  spsave(coreOptions, credentials, fileOptions)
-  .then(function(){
-      console.log('Success')
+  const sppurge = new Delete();
+  sppurge.deleteFolder(purgeContext, spFolder)
+  .then(deletionResults =>{
+    console.log('Deleted output folder')
+
+    console.log(`Publishing files from ${path}`)
+
+    spsave(coreOptions, credentials, fileOptions)
+    .then(function(){
+        console.log('Success')
+    })
+    .catch(function(error){
+      console.log(error);
+    });
   })
-  .catch(function(error){
-    console.log(error);
+  .catch(error =>{
+    console.log('Error while deleting output folder')
+    console.log(error)
   });
 } catch (error) {
   core.setFailed(error.message);
