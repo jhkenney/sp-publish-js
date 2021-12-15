@@ -1,0 +1,21 @@
+name: 'Sharepoint Publish'
+description: 'Publish the contents of a folder to Sharepoint'
+inputs:
+  output_folder:
+    description: "Build output folder"
+    required: true
+  site_url: 
+    description: 'Sharepoint site url'
+    required: true
+  sharepoint_user: 
+    description: 'Sharepoint username'
+    required: true
+  sharepoint_password: 
+    description: 'Sharepoint password'
+    required: true
+  library_folder: 
+    description: 'The path to upload in the library'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

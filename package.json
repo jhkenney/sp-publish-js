@@ -1,0 +1,25 @@
+{
+  "name": "sp-publish-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhkenney/sp-publish-js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jhkenney/sp-publish-js/issues"
+  },
+  "homepage": "https://github.com/jhkenney/sp-publish-js#readme",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "spsave": "^4.0.2"
+  }
+}
