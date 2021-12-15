@@ -69077,6 +69077,537 @@ __exportStar(__nccwpck_require__(55816), exports);
 
 /***/ }),
 
+/***/ 50170:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SPPurge = void 0;
+var path = __nccwpck_require__(71017);
+var api_1 = __nccwpck_require__(89018);
+var content_1 = __nccwpck_require__(89776);
+var context_1 = __nccwpck_require__(95477);
+var utils_1 = __nccwpck_require__(71230);
+var logger_1 = __nccwpck_require__(13938);
+var SPPurge = (function () {
+    function SPPurge() {
+        this.webPathsCache = [];
+        this.restApi = new api_1.Delete();
+    }
+    SPPurge.prototype.delete = function (context, options) {
+        var _this = this;
+        if (typeof options.fileRegExp === 'object' &&
+            typeof options.fileRegExp.test === 'function') {
+            return new content_1.Content().getFolderContent(context, options.folder)
+                .then(function (_a) {
+                var files = _a.files;
+                return __awaiter(_this, void 0, void 0, function () {
+                    var _i, files_1, file;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
+                            case 0:
+                                _i = 0, files_1 = files;
+                                _b.label = 1;
+                            case 1:
+                                if (!(_i < files_1.length)) return [3, 4];
+                                file = files_1[_i];
+                                if (!options.fileRegExp.test(file.ServerRelativeUrl)) return [3, 3];
+                                logger_1.logger.info("[" + (0, utils_1.formatTime)(new Date()) + "]", 'SPPurge:', file.ServerRelativeUrl, '(delete)');
+                                return [4, this.restApi.deleteFile(context, file.ServerRelativeUrl)];
+                            case 2:
+                                _b.sent();
+                                _b.label = 3;
+                            case 3:
+                                _i++;
+                                return [3, 1];
+                            case 4: return [2];
+                        }
+                    });
+                });
+            });
+        }
+        else {
+            var filePath = options.filePath;
+            var folderPath = options.folder || '';
+            if (typeof options.filePath === 'undefined') {
+                if (typeof options.localFilePath !== 'undefined' &&
+                    typeof options.localBasePath !== 'undefined') {
+                    filePath = path.resolve(options.localFilePath)
+                        .replace(path.resolve(options.localBasePath), '');
+                }
+            }
+            var fileUri = context.siteUrl + "/" + folderPath + "/" + filePath;
+            fileUri = fileUri.replace(/\\/g, '/').replace(/\/+/g, '/');
+            fileUri = fileUri.replace('http:/', '').replace('https:/', '');
+            fileUri = fileUri.replace(fileUri.split('/')[0], '');
+            logger_1.logger.info("[" + (0, utils_1.formatTime)(new Date()) + "]", "SPPurge: " + decodeURIComponent(fileUri) + " (delete)");
+            return this.restApi.deleteFile(context, fileUri);
+        }
+    };
+    SPPurge.prototype.deleteFileByAbsolutePath = function (creds, fileAbsolutePath) {
+        var _this = this;
+        var fileAbsPath = (0, utils_1.escapeUriPath)(fileAbsolutePath);
+        return this.getWebByAnyChildUrl(creds, fileAbsolutePath).then(function (siteUrl) {
+            var opts = {
+                filePath: fileAbsPath.replace(siteUrl + "/", '')
+            };
+            return _this.delete({ siteUrl: siteUrl, creds: creds }, opts);
+        });
+    };
+    SPPurge.prototype.getWebByAnyChildUrl = function (creds, fileAbsolutePath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var fileAbsPath, wpc, Url, webUrl, folder;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        fileAbsPath = (0, utils_1.escapeUriPath)(fileAbsolutePath);
+                        wpc = [];
+                        wpc = this.webPathsCache.filter(function (_a) {
+                            var folders = _a.folders;
+                            return folders.filter(function (f) {
+                                return fileAbsPath.indexOf(f) !== -1;
+                            }).length > 0;
+                        });
+                        if (wpc.length > 0) {
+                            return [2, wpc[0].webUrl];
+                        }
+                        return [4, new context_1.Context(creds).getWebByAnyChildUrl(fileAbsPath)];
+                    case 1:
+                        Url = (_a.sent()).Url;
+                        webUrl = (0, utils_1.escapeUriPath)(Url);
+                        folder = webUrl + "/" + fileAbsPath.replace(webUrl + "/", '').split('/')[0];
+                        wpc = this.webPathsCache.filter(function (w) { return w.webUrl === webUrl; });
+                        if (wpc.length === 0) {
+                            this.webPathsCache.push({
+                                webUrl: webUrl,
+                                folders: [folder]
+                            });
+                        }
+                        return [2, webUrl];
+                }
+            });
+        });
+    };
+    return SPPurge;
+}());
+exports.SPPurge = SPPurge;
+var sppurge = new SPPurge();
+var purge = sppurge.delete.bind(sppurge);
+exports["default"] = purge;
+//# sourceMappingURL=SPPurge.js.map
+
+/***/ }),
+
+/***/ 89776:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Content = void 0;
+var https = __nccwpck_require__(95687);
+var colors = __nccwpck_require__(83465);
+var sprequest = __nccwpck_require__(77250);
+var utils_1 = __nccwpck_require__(71230);
+var logger_1 = __nccwpck_require__(13938);
+var Content = (function () {
+    function Content() {
+        this.agent = new https.Agent({
+            rejectUnauthorized: false,
+            keepAlive: true,
+            keepAliveMsecs: 10000
+        });
+    }
+    Content.prototype.getFolderContent = function (context, spRootFolder) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var restUrl;
+            _this.spr = _this.getCachedRequest(context);
+            if (spRootFolder.charAt(spRootFolder.length - 1) === '/') {
+                spRootFolder = spRootFolder.substring(0, spRootFolder.length - 1);
+            }
+            restUrl = (0, utils_1.trimMultiline)("\n        " + context.siteUrl + "/_api/Web/GetFolderByServerRelativeUrl(@FolderServerRelativeUrl)\n          ?$expand=Folders,Files,Folders/ListItemAllFields,Files/ListItemAllFields\n          &$select=\n            Folders/ListItemAllFields/Id,\n            Folders/Name,Folders/UniqueID,Folders/ID,Folders/ItemCount,Folders/ServerRelativeUrl,Folder/TimeCreated,Folder/TimeLastModified,\n            Files/Name,Files/UniqueID,Files/ID,Files/ServerRelativeUrl,Files/Length,Files/TimeCreated,Files/TimeLastModified,Files/ModifiedBy\n          &@FolderServerRelativeUrl='" + (0, utils_1.escapeURIComponent)(spRootFolder) + "'\n      ");
+            _this.spr.get(restUrl, {
+                agent: (0, utils_1.isUrlHttps)(restUrl) ? _this.agent : undefined
+            })
+                .then(function (response) { return __awaiter(_this, void 0, void 0, function () {
+                var results, folders, files, _i, _a, folder, res;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            results = {
+                                folders: (response.body.d.Folders.results || []).filter(function (folder) {
+                                    return typeof folder.ListItemAllFields.Id !== 'undefined';
+                                }),
+                                files: (response.body.d.Files.results || [])
+                            };
+                            folders = [];
+                            files = [];
+                            _i = 0, _a = results.folders;
+                            _b.label = 1;
+                        case 1:
+                            if (!(_i < _a.length)) return [3, 4];
+                            folder = _a[_i];
+                            if (!(folder.ItemCount !== 0)) return [3, 3];
+                            return [4, this.getFolderContent(context, folder.ServerRelativeUrl)];
+                        case 2:
+                            res = _b.sent();
+                            folders = folders.concat(res.folders);
+                            files = files.concat(res.files);
+                            _b.label = 3;
+                        case 3:
+                            _i++;
+                            return [3, 1];
+                        case 4:
+                            results = {
+                                folders: results.folders.concat(folders),
+                                files: results.files.concat(files)
+                            };
+                            resolve(results);
+                            return [2];
+                    }
+                });
+            }); })
+                .catch(function (err) {
+                logger_1.logger.info(colors.red.bold('\nError in getFolderContent:'), colors.red(err));
+                reject(err);
+            });
+        });
+    };
+    Content.prototype.getCachedRequest = function (context) {
+        return this.spr || sprequest.create(context.creds);
+    };
+    return Content;
+}());
+exports.Content = Content;
+//# sourceMappingURL=content.js.map
+
+/***/ }),
+
+/***/ 95477:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Context = void 0;
+var sp_request_1 = __nccwpck_require__(77250);
+var Context = (function () {
+    function Context(context) {
+        var _this = this;
+        this.initContext = function (context) {
+            _this.spr = (0, sp_request_1.create)(context);
+        };
+        this.initContext(context);
+    }
+    Context.prototype.getWebByAnyChildUrl = function (anyChildUrl) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var restUrl = anyChildUrl + "/_api/web?$select=Url,ServerRelativeUrl";
+            _this.spr.get(restUrl, {
+                headers: {
+                    'Accept': 'application/json;odata=verbose'
+                }
+            })
+                .then(function (response) { return resolve(response.body.d); })
+                .catch(function (err) {
+                if (err.response.statusCode === 404) {
+                    var childUrlArr = anyChildUrl.split('/');
+                    childUrlArr.pop();
+                    var childUrl = childUrlArr.join('/');
+                    if (childUrlArr.length <= 2) {
+                        return reject("Wrong url, can't get Web property");
+                    }
+                    else {
+                        return resolve(_this.getWebByAnyChildUrl(childUrl));
+                    }
+                }
+                else {
+                    return reject(err);
+                }
+            });
+        });
+    };
+    return Context;
+}());
+exports.Context = Context;
+//# sourceMappingURL=context.js.map
+
+/***/ }),
+
+/***/ 89018:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Delete = void 0;
+var sprequest = __nccwpck_require__(77250);
+var utils_1 = __nccwpck_require__(71230);
+var Delete = (function () {
+    function Delete() {
+        var _this = this;
+        this.getCachedRequest = function (context) {
+            return _this.spr || sprequest.create(context.creds);
+        };
+    }
+    Delete.prototype.deleteFile = function (context, filePath) {
+        var restUrl = context.siteUrl + "/_api/Web/GetFileByServerRelativeUrl(@FilePath)" +
+            ("?@FilePath='" + (0, utils_1.escapeURIComponent)(filePath) + "'");
+        return this.deleteRequest(context, restUrl);
+    };
+    Delete.prototype.deleteFolder = function (context, folderPath) {
+        var restUrl = context.siteUrl + "/_api/Web/GetFolderByServerRelativeUrl(@FolderPath)" +
+            ("?@FolderPath='" + (0, utils_1.escapeURIComponent)(folderPath) + "'");
+        return this.deleteRequest(context, restUrl);
+    };
+    Delete.prototype.deleteRequest = function (context, restUrl) {
+        var _this = this;
+        this.spr = this.getCachedRequest(context);
+        return this.spr.requestDigest(context.siteUrl).then(function (digest) {
+            return _this.spr.post(restUrl, {
+                headers: {
+                    'X-RequestDigest': digest,
+                    'X-HTTP-Method': 'DELETE',
+                    'Accept': 'application/json; odata=verbose',
+                    'Content-Type': 'application/json; odata=verbose'
+                }
+            });
+        });
+    };
+    return Delete;
+}());
+exports.Delete = Delete;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 25162:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SPPurge = exports.Delete = void 0;
+var SPPurge_1 = __nccwpck_require__(50170);
+__exportStar(__nccwpck_require__(31739), exports);
+var api_1 = __nccwpck_require__(89018);
+Object.defineProperty(exports, "Delete", ({ enumerable: true, get: function () { return api_1.Delete; } }));
+var SPPurge_2 = __nccwpck_require__(50170);
+Object.defineProperty(exports, "SPPurge", ({ enumerable: true, get: function () { return SPPurge_2.SPPurge; } }));
+exports["default"] = SPPurge_1.default;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 31739:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 71230:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.escapeUriPath = exports.isUrlHttps = exports.trimMultiline = exports.escapeURIComponent = exports.formatTime = void 0;
+var formatTime = function (date) {
+    var hh = ('0' + date.getHours()).slice(-2);
+    var mm = ('0' + date.getMinutes()).slice(-2);
+    var ss = ('0' + date.getSeconds()).slice(-2);
+    return hh + ":" + mm + ":" + ss;
+};
+exports.formatTime = formatTime;
+var escapeURIComponent = function (input) {
+    return encodeURIComponent(input.replace(/'/g, '%27'));
+};
+exports.escapeURIComponent = escapeURIComponent;
+var trimMultiline = function (multiline) {
+    return multiline
+        .split('\n')
+        .map(function (line) { return line.trim(); })
+        .filter(function (line) { return line.length > 0; })
+        .join('').trim();
+};
+exports.trimMultiline = trimMultiline;
+var isUrlHttps = function (url) {
+    return url.split('://')[0].toLowerCase() === 'https';
+};
+exports.isUrlHttps = isUrlHttps;
+var escapeUriPath = function (url) {
+    return encodeURIComponent(decodeURIComponent(url.toLowerCase()))
+        .replace(/%3A/g, ':')
+        .replace(/%2F/g, '/');
+};
+exports.escapeUriPath = escapeUriPath;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 13938:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = exports.Logger = void 0;
+var Logger = (function () {
+    function Logger(level) {
+        if (level === void 0) { level = 3; }
+        this.level = level;
+    }
+    Logger.prototype.debug = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var suppressLogs = "" + process.env.SPPURGE_SILENT === 'true';
+        if (this.level >= 5) {
+            if (!suppressLogs)
+                console.log.apply(console, args);
+        }
+    };
+    Logger.prototype.verbose = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var suppressLogs = "" + process.env.SPPURGE_SILENT === 'true';
+        if (this.level >= 4) {
+            if (!suppressLogs)
+                console.log.apply(console, args);
+        }
+    };
+    Logger.prototype.info = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var suppressLogs = "" + process.env.SPPURGE_SILENT === 'true';
+        if (this.level >= 3) {
+            if (!suppressLogs)
+                console.log.apply(console, args);
+        }
+    };
+    Logger.prototype.warning = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var suppressLogs = "" + process.env.SPPURGE_SILENT === 'true';
+        if (this.level >= 2) {
+            if (!suppressLogs)
+                console.log.apply(console, args);
+        }
+    };
+    Logger.prototype.error = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var suppressLogs = "" + process.env.SPPURGE_SILENT === 'true';
+        if (this.level >= 1) {
+            if (!suppressLogs)
+                console.log.apply(console, args);
+        }
+    };
+    return Logger;
+}());
+exports.Logger = Logger;
+exports.logger = new Logger(parseInt(process.env.LOG_LEVEL || '3', 10));
+//# sourceMappingURL=logger.js.map
+
+/***/ }),
+
 /***/ 48332:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -76065,6 +76596,7 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(71759);
 const github = __nccwpck_require__(57427);
+const {Delete} = __nccwpck_require__(25162);
 var spsave = (__nccwpck_require__(23396).spsave);
 
 try {
@@ -76074,6 +76606,24 @@ try {
   const spUser = core.getInput('sharepoint_user');
   const spPass = core.getInput('sharepoint_password');
   const spFolder = core.getInput('library_folder');
+
+  var purgeContext = {
+    siteUrl: spUrl,
+    creds: {
+      username: spUser,
+      password: spPass,
+    }
+  }
+
+  const sppurge = new Delete();
+  sppurge.deleteFolder(context, spFolder)
+  .then(deletionResults =>{
+    console.log('Deleted output folder')
+  })
+  .catch(error =>{
+    console.log('Error while deleting output folder')
+    console.log(error)
+  });
 
   var coreOptions = {
       siteUrl: spUrl,
