@@ -76622,7 +76622,7 @@ try {
       password: spPass,
   };
   var fileOptions = {
-    glob: `${process.env.GITHUB_WORKSPACE}\\${outputFolder}\\**\\*.*`,
+    glob: `${process.env.GITHUB_WORKSPACE}\\${outputFolder}\\**\\*`,
     folder: spFolder, 
   };
   var path = `${process.env.GITHUB_WORKSPACE}\\${outputFolder}\\**\\`
